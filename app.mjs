@@ -1,8 +1,9 @@
-import { LEVELS, setup, turn, trace } from './model.mjs';
+import {LEVELS,startGarden,editMirror,sendSeed,resetGarden,undoEdit} from './model.mjs';
 const $ = id => document.getElementById(id);
-let level = 0, board = setup(0), history = [], result = null;
+let state=startGarden(0);
 LEVELS.forEach((l,i)=>{ const o=document.createElement('option');o.value=i;o.textContent=`${i+1} / ${LEVELS.length}`;$('level').append(o); });
 function draw() {
+  const {level,board,history,result}=state;
   $('name').textContent=board.name;$('count').textContent=`${result?.lit.length || 0} / ${board.flowers.length} flowers`;
   $('board').style.setProperty('--size',board.size);
   const existing=$('board').children.length===board.size**2;
@@ -14,7 +15,7 @@ function draw() {
     if(!cell||cell.tagName!==type){const fresh=document.createElement(type.toLowerCase());if(cell)cell.replaceWith(fresh);else $('board').append(fresh);cell=fresh;}
     cell.className=`cell ${mi>=0?'mirror':fi>=0?'flower':'empty'}${result?.lit.includes(fi)?' bloom':''}${x===0&&y===board.row?' source':''}`;
     cell.textContent=mi>=0?board.mirrors[mi][2]:fi>=0?'✳':x===0&&y===board.row?'→':'·';
-    if(mi>=0){cell.setAttribute('aria-label',`Mirror ${mi+1}, row ${y+1}, column ${x+1}, ${board.mirrors[mi][2]==='/'?'rises right':'falls right'}. Turn mirror`);cell.onclick=()=>{history.push(board);board=turn(board,mi);result=null;draw();$('status').textContent=`Mirror ${mi+1} turned. Send the seed to see its path.`;};}
+    if(mi>=0){cell.setAttribute('aria-label',`Mirror ${mi+1}, row ${y+1}, column ${x+1}, ${board.mirrors[mi][2]==='/'?'rises right':'falls right'}. Turn mirror`);cell.onclick=()=>{state=editMirror(state,mi);draw();$('status').textContent=`Mirror ${mi+1} turned. Send seed to try this route.`;};}
     else{cell.setAttribute('aria-label',fi>=0?`Flower ${fi+1}${result?.lit.includes(fi)?', bloomed':''}`:x===0&&y===board.row?'Seed enters here':'Empty tile');}
   }
   $('trail').setAttribute('viewBox',`0 0 ${board.size*60} ${board.size*60}`);
@@ -22,9 +23,9 @@ function draw() {
   if(result){const line=document.createElementNS('http://www.w3.org/2000/svg','polyline');line.setAttribute('points',result.path.map(([x,y])=>`${x*60+30},${y*60+30}`).join(' '));$('trail').append(line);}
   $('undo').disabled=!history.length;$('next').hidden=!result?.won||level===LEVELS.length-1;
 }
-function load(i){level=i;board=setup(i);history=[];result=null;$('level').value=i;draw();$('status').textContent='A fresh garden. Where will the first mirror send your seed?';}
+function load(i){state=startGarden(i);$('level').value=i;draw();$('status').textContent='Turn a mirror, then Send seed. Follow its path to find your next turn.';}
 $('level').onchange=()=>load(Number($('level').value));
-$('send').onclick=()=>{result=trace(board);draw();$('status').textContent=result.won?`Every flower bloomed! ${level===LEVELS.length-1?'You threaded all four gardens. Revisit one and explore another route.':'Your route works. Ready for another garden?'}`:`${result.lit.length} of ${board.flowers.length} flowers bloomed. ${result.end==='loop'?'The seed found a loop.':'The seed left the garden.'} Follow the path and turn a mirror.`;};
-$('undo').onclick=()=>{if(history.length){board=history.pop();result=null;draw();$('status').textContent='Last turn undone. Your earlier arrangement is back.';if($('undo').disabled)$('send').focus();}};
-$('reset').onclick=()=>load(level);
-$('next').onclick=()=>{load(level+1);$('send').focus();};load(0);
+$('send').onclick=()=>{state=sendSeed(state);draw();const {result,level,board}=state;$('status').textContent=result.won?`Every flower bloomed! ${level===LEVELS.length-1?'Final garden solved. Choose any garden to try another route.':'Ready for the next garden.'}`:`${result.lit.length} of ${board.flowers.length} flowers bloomed. ${result.end==='loop'?'The seed found a loop.':'The seed left the garden.'} Turn a mirror along its path and try again.`;if(result.won&&!$('next').hidden)$('next').focus();};
+$('undo').onclick=()=>{if(state.history.length){state=undoEdit(state);draw();$('status').textContent=state.result?'Edit undone. Your earlier arrangement and shot are back.':'Edit undone. Your earlier arrangement is back.';if($('undo').disabled)$('send').focus();}};
+$('reset').onclick=()=>{state=resetGarden(state);draw();$('status').textContent='Garden reset. Undo edit restores your earlier arrangement and shot.';};
+$('next').onclick=()=>{load(state.level+1);$('board').querySelector('button')?.focus();};load(0);

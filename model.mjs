@@ -24,3 +24,10 @@ export function trace(board) {
   }
   return { path, lit: [...lit], end: 'limit', won: false };
 }
+
+export const startGarden = level => ({level,board:setup(level),result:null,history:[]});
+const remember = state => [...state.history,{board:state.board,result:state.result}];
+export function editMirror(state,index){const board=turn(state.board,index);return board===state.board?state:{...state,board,result:null,history:remember(state)};}
+export const sendSeed = state => ({...state,result:trace(state.board)});
+export const resetGarden = state => ({...state,board:setup(state.level),result:null,history:remember(state)});
+export function undoEdit(state){if(!state.history.length)return state;return {...state,...state.history.at(-1),history:state.history.slice(0,-1)};}

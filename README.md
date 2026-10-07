@@ -4,7 +4,7 @@ Turn mirrors and send one seed through every flower in four small ricochet puzzl
 
 Run `python -m http.server 8000`, then open http://localhost:8000. No install, build, account or external assets are needed.
 
-Click or keyboard-activate any mirror to swap its diagonal, then **Send seed**. The complete path and bloomed flowers stay visible. **Undo turn** reverses your latest edit; **Reset garden** restores the original arrangement. Choose a garden directly or use **Next garden** after solving one. There is no timer or attempt limit. Progress is memory-only and resets on reload.
+Click or keyboard-activate any mirror to swap its diagonal, then **Send seed**. The complete path and bloomed flowers stay visible. **Undo edit** reverses a mirror change or Reset, restoring both the arrangement and its previous visible shot. **Reset garden** restores the original arrangement and remains undoable. Choose a garden directly or use **Next garden** after solving one. Changing gardens starts a new Undo history. There is no timer or attempt limit. Progress is memory-only and resets on reload.
 
 The model follows grid-aligned rays with exact right-angle reflections. It is a deliberate discrete puzzle, not a physical optics simulation. Four authored gardens ship; there are no splitter, audio, custom-level or random-generation features. Routes are shown immediately rather than animated.
 
