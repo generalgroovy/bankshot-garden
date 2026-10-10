@@ -23,9 +23,9 @@ function draw() {
   if(result){const line=document.createElementNS('http://www.w3.org/2000/svg','polyline');line.setAttribute('points',result.path.map(([x,y])=>`${x*60+30},${y*60+30}`).join(' '));$('trail').append(line);}
   $('undo').disabled=!history.length;$('next').hidden=!result?.won||level===LEVELS.length-1;
 }
-function load(i){state=startGarden(i);$('level').value=i;draw();$('status').textContent='Turn a mirror, then Send seed. Follow its path to find your next turn.';}
+function load(i){state=startGarden(i);$('level').value=i;draw();$('status').textContent='Turn a mirror, then Send seed to trace the path.';}
 $('level').onchange=()=>load(Number($('level').value));
-$('send').onclick=()=>{state=sendSeed(state);draw();const {result,level,board}=state;$('status').textContent=result.won?`Every flower bloomed! ${level===LEVELS.length-1?'Final garden solved. Choose any garden to try another route.':'Ready for the next garden.'}`:`${result.lit.length} of ${board.flowers.length} flowers bloomed. ${result.end==='loop'?'The seed found a loop.':'The seed left the garden.'} Turn a mirror along its path and try again.`;if(result.won&&!$('next').hidden)$('next').focus();};
+$('send').onclick=()=>{state=sendSeed(state);draw();const {result,level,board}=state;$('status').textContent=result.won?`All flowers bloomed. ${level===LEVELS.length-1?'All four gardens available to replay.':'Garden solved.'}`:`${result.lit.length} of ${board.flowers.length} flowers bloomed. ${result.end==='loop'?'The seed found a loop.':'The seed left the garden.'} Turn a mirror along its path and try again.`;if(result.won&&!$('next').hidden)$('next').focus();};
 $('undo').onclick=()=>{if(state.history.length){state=undoEdit(state);draw();$('status').textContent=state.result?'Edit undone. Your earlier arrangement and shot are back.':'Edit undone. Your earlier arrangement is back.';if($('undo').disabled)$('send').focus();}};
 $('reset').onclick=()=>{state=resetGarden(state);draw();$('status').textContent='Garden reset. Undo edit restores your earlier arrangement and shot.';};
 $('next').onclick=()=>{load(state.level+1);$('board').querySelector('button')?.focus();};load(0);

@@ -11,5 +11,3 @@ The model follows grid-aligned rays with exact right-angle reflections. It is a 
 Run `npm test` for Node's built-in tests. They verify a concrete winning route for every garden, immutability, deterministic termination across all authored mirror configurations, and flower counting. Browser usability is reviewed separately.
 
 This is original code and artwork. The inspiration is the trajectory play of Quantum Pong, translated into an independent setup-and-observe puzzle; no source or assets were copied.
-
-Potential depth: carefully authored intersecting routes, limited-turn challenges and a shareable garden editor. These are future ideas, not shipped features.
